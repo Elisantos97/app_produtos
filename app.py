@@ -1,13 +1,20 @@
-from flask import Flask, jsonify, request, redirect, url_for
+from flask import Flask, jsonify, request, redirect, url_for, render_template
+from flask_cors import CORS
 import sqlite3
+import base64
+from PIL import Image
+from io import BytesIO
 
 
 app = Flask(__name__)
+CORS(app)
 
 
 @app.route("/")
 def home():
-    return "Hello World, from Flask"
+    return render_template('index.html')
+
+
 
 # con = sqlite3.connect("produtos.db")
 # cur=con.cursor()
@@ -29,93 +36,126 @@ def home():
 
 
 
+# @app.route('/img',methods=['GET','POST'])
+# def img():
+
+#     if request.method=='POST':
+
+#         imag = request.form["img"]
+
+#         with open("imag", "rb") as image_file:
+#             data = base64.b64encode(image_file.read())
+
+#     val='abcdef'
+
+#     return redirect(url_for("obter_produtos"))
+    
+
+# im = Image.open(BytesIO(base64.b64decode(data)))
+# im.save('image1.png', 'PNG')
 
 ### criar
 
-@app.route('/produtos',methods=['POST'])
+@app.route('/produts',methods=['POST','GET'])
 def incluir_novo_produto():
     
-    novo_produto = request.get_json()
+    # novo_produto = request.get_json()
 
-    values=[]
-    for valor in novo_produto.values():
-        values.append(valor)
+    # values=[]
+    # for valor in novo_produto.values():
+    #     values.append(valor)
 
-    con = sqlite3.connect("produtos.db")
-    cur=con.cursor()
+    if request.method=='POST':
 
-    cur.execute("INSERT INTO produto (Nome, Preco, Categoria, Fornecedor, Data_Validade) VALUES (?,?,?,?,?)", values)
-    con.commit()
+        nome = request.form["nome"]
+        preco = request.form["preco"]
+        categoria = request.form["categoria"]
+        fornecedor = request.form["fornecedor"]
+        data_validade = request.form["dataval"]
+        # imag = request.form["img"]
+
+        # with open("imag.jpg", "rb") as image_file:
+        #     data = base64.b64encode(image_file.read())
+    
+
+    # con = sqlite3.connect("produts.db")
+    # cur=con.cursor()
+
+    # cur.execute("INSERT INTO produt (Nome, Preco, Categoria, Fornecedor, Data_Validade, Imagem) VALUES (?,?,?,?,?,?)",(nome, preco, categoria, fornecedor,data_validade, data))
+    # con.commit()
 
     return redirect(url_for("obter_produtos"))
 
 
 ### Consultar todos
 
-@app.route('/produtos', methods=['GET'])
+@app.route('/produts', methods=['GET'])
 def obter_produtos():
 
-    produtos=[]
-    con = sqlite3.connect("produtos.db")
+    produts=[]
+    con = sqlite3.connect("produts.db")
     cur=con.cursor()
-    for i in cur.execute("SELECT * FROM produto"):
-        produtos.append({"id":i[0], "Nome":i[1], "Preco":i[2], "Categoria":i[3], "Fornecedor":i[4], "Data_Validade":i[5]})
+    for i in cur.execute("SELECT * FROM produt"):
+        produts.append({"id":i[0], "Nome":i[1], "Preco":i[2], "Categoria":i[3], "Fornecedor":i[4], "Data_Validade":i[5]})
 
-    return jsonify(produtos)
+    return jsonify(produts)
 
 
-### Consultar por id
+# ### Consultar por id
 
-@app.route('/produtos/<int:id>',methods=['GET'])
-def obter_produto_por_id(id):
+# @app.route('/produtos/<int:id>',methods=['GET'])
+# def obter_produto_por_id(id):
 
-    produtos=[]
-    con = sqlite3.connect("produtos.db")
-    cur=con.cursor()
-    for i in cur.execute("SELECT * FROM produto"):
-        produtos.append({"id":i[0], "Nome":i[1], "Preco":i[2], "Categoria":i[3], "Fornecedor":i[4], "Data_Validade":i[5]})
+#     produtos=[]
+#     con = sqlite3.connect("produtos.db")
+#     cur=con.cursor()
+#     for i in cur.execute("SELECT * FROM produto"):
+#         produtos.append({"id":i[0], "Nome":i[1], "Preco":i[2], "Categoria":i[3], "Fornecedor":i[4], "Data_Validade":i[5]})
 
-    for produto in produtos:
-        if produto.get('id') == id:
-            return jsonify(produto)
+#     for produto in produtos:
+#         if produto.get('id') == id:
+#             return jsonify(produto)
         
         
-### Editar por id
+# ### Editar por id
 
-@app.route('/produtos/<int:id>',methods=['PUT'])
-def editar_produto_por_id(id):
+# @app.route('/produtos/<int:id>',methods=['PUT'])
+# def editar_produto_por_id(id):
 
-    produtos=[]
-    con = sqlite3.connect("produtos.db")
-    cur=con.cursor()
-    for i in cur.execute("SELECT * FROM produto"):
-        produtos.append({"id":i[0], "Nome":i[1], "Preco":i[2], "Categoria":i[3], "Fornecedor":i[4], "Data_Validade":i[5]})
+#     produtos=[]
+#     con = sqlite3.connect("produtos.db")
+#     cur=con.cursor()
+#     for i in cur.execute("SELECT * FROM produto"):
+#         produtos.append({"id":i[0], "Nome":i[1], "Preco":i[2], "Categoria":i[3], "Fornecedor":i[4], "Data_Validade":i[5]})
     
-    produto_alterado = request.get_json()
-    for indice, produto in enumerate(produtos):
-        if produto.get('id') == id:
-            produtos[indice].update(produto_alterado)
+#     produto_alterado = request.get_json()
+#     for indice, produto in enumerate(produtos):
+#         if produto.get('id') == id:
+#             produtos[indice].update(produto_alterado)
 
 
 
-            cur.execute(f"Update produto set Nome = '{produto.get('Nome')}', Preco = '{produto.get('Preco')}', Fornecedor = '{produto.get('Fornecedor')}', \
-                         Data_Validade = '{produto.get('Data_Validade')}' where id = '{id}'")
-            con.commit()
-    return redirect(url_for("obter_produtos"))
+#             cur.execute(f"Update produto set Nome = '{produto.get('Nome')}', Preco = '{produto.get('Preco')}', Fornecedor = '{produto.get('Fornecedor')}', \
+#                          Data_Validade = '{produto.get('Data_Validade')}' where id = '{id}'")
+#             con.commit()
+#     return redirect(url_for("obter_produtos"))
         
 
-### Apagar por id
+# ### Apagar por id
 
-@app.route('/produtos/<int:id>',methods=['DELETE'])
-def excluir_jogador(id):
-    con = sqlite3.connect("produtos.db")
-    cur=con.cursor()
+# @app.route('/produtos/<int:id>',methods=['DELETE'])
+# def excluir_jogador(id):
+#     con = sqlite3.connect("produtos.db")
+#     cur=con.cursor()
 
-    cur.execute("DELETE from produto where id = ?", (id,))
-    con.commit()
+#     cur.execute("DELETE from produto where id = ?", (id,))
+#     con.commit()
 
-    return redirect(url_for("obter_produtos"))
+#     return redirect(url_for("obter_produtos"))
             
 
 
-app.run(port=5000,host='localhost',debug=True)
+
+
+if __name__ == "__main__":
+    app.run(debug=True, port=5000, host='0.0.0.0')
