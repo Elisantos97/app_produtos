@@ -17,9 +17,11 @@ def home():
     return "Bem Vindo à página"  #render_template('index.html')
 
 
-
-con = sqlite3.connect("Produtos.db")
+con = sqlite3.connect("Categorias.db")
 cur=con.cursor()
+
+# cur2.execute("CREATE TABLE categoria(idCategoria integer PRIMARY KEY AUTOINCREMENT, nomeCategoria)")
+            
 
 def com():
 
@@ -88,12 +90,13 @@ def incluir_novo_produto():
                 VALUES (?,?,?,?,?,?,?,?,?,?,?)", values)
     con.commit()
 
-    return redirect(url_for("obter_produtos"))
+
+    return redirect(url_for("get_produtos"))
 
 
 ### Consultar todos
 
-@app.route('/produtos', methods=['GET'])
+
 def obter_produtos():
 
     produtos=[]
@@ -104,9 +107,89 @@ def obter_produtos():
                          "corProduto":i[4], "quantidadeProduto":i[5], "dataValidadeProduto":i[6], 
                          "marcaProduto":i[7], "precoUnitarioProduto":i[8], "categoriaProduto":i[9], 
                          "fornecedorProduto":i[10], "imagemProduto":i[11]})
+    
 
-    return jsonify(produtos)
+    return produtos
 
+@app.route('/produtos', methods=['GET'])
+def get_produtos():
+
+    return jsonify(obter_produtos())
+
+################################ Categorias ################################
+
+
+def lista_categorias():
+    lista_cat=[]
+
+    for prod in obter_produtos():
+        for cat in prod.keys():
+            if cat == "categoriaProduto" and prod.get("categoriaProduto") not in lista_cat:
+                lista_cat.append(prod.get("categoriaProduto"))
+
+    return lista_cat
+
+
+
+
+con2 = sqlite3.connect("Categorias.db")
+cur2=con2.cursor()
+
+
+res = cur2.execute("SELECT nomeCategoria FROM categoria")
+res1=[]
+for i in res:
+    res1.append(i[0])
+
+
+
+for categ in lista_categorias():
+     if categ not in res1:  
+
+        cur2.execute("INSERT INTO categoria (nomeCategoria) VALUES (?)", (categ,))
+        con2.commit()
+
+
+
+def obter_categorias():
+
+    categorias=[]
+    con2 = sqlite3.connect("Categorias.db")
+    cur2=con2.cursor()
+    for i in cur2.execute("SELECT * FROM categoria"):
+        categorias.append({"idCategoria":i[0], "nomeCategoria":i[1]})
+    
+
+    return categorias
+
+@app.route('/categorias', methods=['GET'])
+def get_categorias():
+
+    return jsonify(obter_categorias())
+
+
+
+## criar categoria
+
+@app.route('/categorias',methods=['POST'])
+def incluir_nova_categoria():
+    
+    nova_categoria = request.get_json()
+    
+    for a in nova_categoria.values():
+        categ=a
+
+    con2 = sqlite3.connect("Categorias.db")
+    cur2=con2.cursor()
+
+    cur2.execute("INSERT INTO categoria (nomeCategoria) VALUES (?)", (categ,))
+    con2.commit()
+
+
+    return redirect(url_for("get_categorias"))
+
+
+################################ Categorias ################################
 
 ### Consultar por id
 
