@@ -90,9 +90,8 @@ def incluir_novo_produto():
     con = sqlite3.connect("produtos.db")
     cur=con.cursor()
 
-    cur.execute("INSERT INTO produto (codigoProduto, nomeProduto, descricaoProduto, corProduto, quantidadeProduto, \
-                dataValidadeProduto, marcaProduto, precoUnitarioProduto, categoriaProduto, fornecedorProduto, imagemProduto) \
-                VALUES (?,?,?,?,?,?,?,?,?,?,?)", values)
+    cur.execute("INSERT INTO produto (nomeProduto, descricaoProduto, imagemProduto, idCategoriaProduto) \
+                VALUES (?,?,?,?)", values)
     con.commit()
 
 
@@ -108,18 +107,15 @@ def obter_produtos():
     con = sqlite3.connect("produtos.db")
     cur=con.cursor()
     for i in cur.execute("SELECT * FROM produto"):
-        produtos.append({"idProduto":i[0], "codigoProduto":i[1], "nomeProduto":i[2], "descricaoProduto":i[3], 
-                         "corProduto":i[4], "quantidadeProduto":i[5], "dataValidadeProduto":i[6], 
-                         "marcaProduto":i[7], "precoUnitarioProduto":i[8], "categoriaProduto":i[9], 
-                         "fornecedorProduto":i[10], "imagemProduto":i[11]})
+        produtos.append({"idProduto":i[0], "nomeProduto":i[1], "descricaoProduto":i[2], "imagemProduto":i[3], "idCategoriaProduto":i[4]})
     
 
     return produtos
 
-# @app.route('/produtos', methods=['GET'])
-# def get_produtos():
+@app.route('/produtos', methods=['GET'])
+def get_produtos():
 
-#     return jsonify(obter_produtos())
+    return jsonify(obter_produtos())
 
 ########################################
 
@@ -139,15 +135,14 @@ def obter_produtos():
 ######################################
 
 ### Autenticação "API Key - Key/Value"
-@app.route('/produtos', methods=['GET'])
-def get_produtos():
-    headers = request.headers
-    print(headers)
-    auth = headers.get("minhachave")
-    if auth == 'abc123':
-        return jsonify(obter_produtos()), 200
-    else:
-        return jsonify({"message": "ERROR: Unauthorized"}), 401
+# @app.route('/produtos', methods=['GET'])
+# def get_produtos():
+#     headers = request.headers
+#     auth = headers.get("minhachave")
+#     if auth == 'abc123':
+#         return jsonify(obter_produtos()), 200
+#     else:
+#         return jsonify({"message": "ERROR: Unauthorized"}), 401
 
 
 
@@ -230,87 +225,87 @@ def incluir_nova_categoria():
 
 ### Consultar por id
 
-@app.route('/produtos/<int:id>',methods=['GET'])
-def obter_produto_por_id(id):
+# @app.route('/produtos/<int:id>',methods=['GET'])
+# def obter_produto_por_id(id):
 
-    produtos=[]
-    con = sqlite3.connect("produtos.db")
-    cur=con.cursor()
-    for i in cur.execute("SELECT * FROM produto"):
-        produtos.append({"idProduto":i[0], "codigoProduto":i[1], "nomeProduto":i[2], "descricaoProduto":i[3], 
-                         "corProduto":i[4], "quantidadeProduto":i[5], "dataValidadeProduto":i[6], 
-                         "marcaProduto":i[7], "precoUnitarioProduto":i[8], "categoriaProduto":i[9], 
-                         "fornecedorProduto":i[10], "imagemProduto":i[11]})
+#     produtos=[]
+#     con = sqlite3.connect("produtos.db")
+#     cur=con.cursor()
+#     for i in cur.execute("SELECT * FROM produto"):
+#         produtos.append({"idProduto":i[0], "codigoProduto":i[1], "nomeProduto":i[2], "descricaoProduto":i[3], 
+#                          "corProduto":i[4], "quantidadeProduto":i[5], "dataValidadeProduto":i[6], 
+#                          "marcaProduto":i[7], "precoUnitarioProduto":i[8], "categoriaProduto":i[9], 
+#                          "fornecedorProduto":i[10], "imagemProduto":i[11]})
 
-    for produto in produtos:
-        if produto.get('idProduto') == id:
-            return jsonify(produto)
+#     for produto in produtos:
+#         if produto.get('idProduto') == id:
+#             return jsonify(produto)
         
         
-### Editar por id
+# ### Editar por id
 
-@app.route('/produtos/<int:id>',methods=['PUT'])
-def editar_produto_por_id(id):
+# @app.route('/produtos/<int:id>',methods=['PUT'])
+# def editar_produto_por_id(id):
 
-    produtos=[]
-    con = sqlite3.connect("produtos.db")
-    cur=con.cursor()
-    for i in cur.execute("SELECT * FROM produto"):
-        produtos.append({"idProduto":i[0], "codigoProduto":i[1], "nomeProduto":i[2], "descricaoProduto":i[3], 
-                         "corProduto":i[4], "quantidadeProduto":i[5], "dataValidadeProduto":i[6], 
-                         "marcaProduto":i[7], "precoUnitarioProduto":i[8], "categoriaProduto":i[9], 
-                         "fornecedorProduto":i[10], "imagemProduto":i[11]})
+#     produtos=[]
+#     con = sqlite3.connect("produtos.db")
+#     cur=con.cursor()
+#     for i in cur.execute("SELECT * FROM produto"):
+#         produtos.append({"idProduto":i[0], "codigoProduto":i[1], "nomeProduto":i[2], "descricaoProduto":i[3], 
+#                          "corProduto":i[4], "quantidadeProduto":i[5], "dataValidadeProduto":i[6], 
+#                          "marcaProduto":i[7], "precoUnitarioProduto":i[8], "categoriaProduto":i[9], 
+#                          "fornecedorProduto":i[10], "imagemProduto":i[11]})
     
-    produto_alterado = request.get_json()
-    for indice, produto in enumerate(produtos):
-        if produto.get('idProduto') == id:
-            produtos[indice].update(produto_alterado)
+#     produto_alterado = request.get_json()
+#     for indice, produto in enumerate(produtos):
+#         if produto.get('idProduto') == id:
+#             produtos[indice].update(produto_alterado)
 
 
 
-            cur.execute(f"Update produto set codigoProduto = '{produto.get('codigoProduto')}', nomeProduto = '{produto.get('nomeProduto')}', descricaoProduto = '{produto.get('descricaoProduto')}', \
-                         corProduto = '{produto.get('corProduto')}', quantidadeProduto = '{produto.get('quantidadeProduto')}', dataValidadeProduto = '{produto.get('dataValidadeProduto')}', \
-                         marcaProduto = '{produto.get('marcaProduto')}', precoUnitarioProduto = '{produto.get('precoUnitarioProduto')}', categoriaProduto = '{produto.get('categoriaProduto')}', \
-                         fornecedorProduto = '{produto.get('fornecedorProduto')}', imagemProduto = '{produto.get('imagemProduto')}' where idProduto = '{id}'")
-            con.commit()
-    return redirect(url_for("obter_produtos"))
+#             cur.execute(f"Update produto set codigoProduto = '{produto.get('codigoProduto')}', nomeProduto = '{produto.get('nomeProduto')}', descricaoProduto = '{produto.get('descricaoProduto')}', \
+#                          corProduto = '{produto.get('corProduto')}', quantidadeProduto = '{produto.get('quantidadeProduto')}', dataValidadeProduto = '{produto.get('dataValidadeProduto')}', \
+#                          marcaProduto = '{produto.get('marcaProduto')}', precoUnitarioProduto = '{produto.get('precoUnitarioProduto')}', categoriaProduto = '{produto.get('categoriaProduto')}', \
+#                          fornecedorProduto = '{produto.get('fornecedorProduto')}', imagemProduto = '{produto.get('imagemProduto')}' where idProduto = '{id}'")
+#             con.commit()
+#     return redirect(url_for("obter_produtos"))
         
 
-### Apagar por id
+# ### Apagar por id
 
-@app.route('/produtos/<int:id>',methods=['DELETE'])
-def excluir_produto(id):
-    con = sqlite3.connect("produtos.db")
-    cur=con.cursor()
+# @app.route('/produtos/<int:id>',methods=['DELETE'])
+# def excluir_produto(id):
+#     con = sqlite3.connect("produtos.db")
+#     cur=con.cursor()
 
-    cur.execute("DELETE from produto where idProduto = ?", (id,))
-    con.commit()
+#     cur.execute("DELETE from produto where idProduto = ?", (id,))
+#     con.commit()
 
-    return redirect(url_for("obter_produtos"))
+#     return redirect(url_for("obter_produtos"))
             
 
-## Consultar por categoria
+# ## Consultar por categoria
 
-@app.route('/produtos/<categoria>',methods=['GET'])
+# @app.route('/produtos/<categoria>',methods=['GET'])
 
 
-def obter_produto_por_categoria(categoria):
+# def obter_produto_por_categoria(categoria):
 
-    produtos=[]
-    lista_produtos_categoria=[]
-    con = sqlite3.connect("produtos.db")
-    cur=con.cursor()
-    for i in cur.execute("SELECT * FROM produto"):
-        produtos.append({"idProduto":i[0], "codigoProduto":i[1], "nomeProduto":i[2], "descricaoProduto":i[3], 
-                         "corProduto":i[4], "quantidadeProduto":i[5], "dataValidadeProduto":i[6], 
-                         "marcaProduto":i[7], "precoUnitarioProduto":i[8], "categoriaProduto":i[9], 
-                         "fornecedorProduto":i[10], "imagemProduto":i[11]})
+#     produtos=[]
+#     lista_produtos_categoria=[]
+#     con = sqlite3.connect("produtos.db")
+#     cur=con.cursor()
+#     for i in cur.execute("SELECT * FROM produto"):
+#         produtos.append({"idProduto":i[0], "codigoProduto":i[1], "nomeProduto":i[2], "descricaoProduto":i[3], 
+#                          "corProduto":i[4], "quantidadeProduto":i[5], "dataValidadeProduto":i[6], 
+#                          "marcaProduto":i[7], "precoUnitarioProduto":i[8], "categoriaProduto":i[9], 
+#                          "fornecedorProduto":i[10], "imagemProduto":i[11]})
 
-    for produto in produtos:
-        if produto.get('categoriaProduto') == categoria.lower():
-            lista_produtos_categoria.append(produto)
+#     for produto in produtos:
+#         if produto.get('categoriaProduto') == categoria.lower():
+#             lista_produtos_categoria.append(produto)
         
-    return jsonify(lista_produtos_categoria)
+#     return jsonify(lista_produtos_categoria)
 
 
 
