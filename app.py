@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, redirect, url_for, render_template
+from flask import Flask, jsonify, request, redirect, url_for, render_template, make_response
 from flask_cors import CORS
 import sqlite3
 import base64
@@ -8,6 +8,9 @@ from io import BytesIO
 
 app = Flask(__name__)
 CORS(app)
+
+
+
 
 
 @app.route("/",methods=['GET'])
@@ -22,6 +25,8 @@ cur=con.cursor()
 
 # cur2.execute("CREATE TABLE categoria(idCategoria integer PRIMARY KEY AUTOINCREMENT, nomeCategoria)")
             
+
+
 
 def com():
 
@@ -111,10 +116,42 @@ def obter_produtos():
 
     return produtos
 
+# @app.route('/produtos', methods=['GET'])
+# def get_produtos():
+
+#     return jsonify(obter_produtos())
+
+########################################
+
+### Autenticação "Basic Auth - Username/Password"
+# @app.route('/produtos', methods=['GET'])
+# def get_produtos():
+
+#     auth = request.authorization
+
+#     print(auth)
+
+#     if auth and auth.password == 'pass101':
+#         return jsonify(obter_produtos())
+    
+#     return make_response('Could not verify!', 401, {'WWW-Authenticate' : 'Basic realm="Login Required"'})
+
+######################################
+
+### Autenticação "API Key - Key/Value"
 @app.route('/produtos', methods=['GET'])
 def get_produtos():
+    headers = request.headers
+    print(headers)
+    auth = headers.get("minhachave")
+    if auth == 'abc123':
+        return jsonify(obter_produtos()), 200
+    else:
+        return jsonify({"message": "ERROR: Unauthorized"}), 401
 
-    return jsonify(obter_produtos())
+
+
+####################################
 
 ################################ Categorias ################################
 
